@@ -1,460 +1,121 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SSP Business Dashboard — Special Services Protection</title>
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SSP Business Dashboard - Special Services Protection</title>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: #0a0a0a; font-family: 'Inter', sans-serif; color: #f0f0f0; }
-#root { min-height: 100vh; }
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: #0a0a0a; }
-::-webkit-scrollbar-thumb { background: #333; }
-select option { background: #1a1a1a; }
-input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); }
-input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
-</style>
-</head>
-<body>
-<div id="root"></div>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0a0a0a;font-family:Inter,sans-serif;color:#f0f0f0}#root{min-height:100vh}::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#333}select option{background:#1a1a1a}input[type=time]::-webkit-calendar-picker-indicator,input[type=date]::-webkit-calendar-picker-indicator{filter:invert(1)}</style>
+</head><body><div id="root"></div>
 <script type="text/babel">
-const { useState } = React;
-
-const C = {
-  bg:"#0a0a0a",card:"#141414",border:"#2a2a2a",
-  silver:"#c0c0c0",silverDark:"#888",silverLight:"#e8e8e8",
-  gold:"#b8972a",text:"#f0f0f0",muted:"#666",
-  green:"#22c55e",red:"#ef4444",blue:"#3b82f6",
-};
-
-const gradText = {
-  background:"linear-gradient(135deg,#c0c0c0 0%,#e8e8e8 50%,#888 100%)",
-  WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",
-};
-
-const Card = ({children,style}) => (
-  <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:20,...style}}>
-    {children}
-  </div>
-);
-
-const Btn = ({children,onClick,variant="primary",style,disabled}) => {
-  const base = {padding:"8px 16px",borderRadius:8,border:"none",cursor:disabled?"not-allowed":"pointer",fontSize:13,fontWeight:600,opacity:disabled?.5:1,...style};
-  const v = {
-    primary:{background:"linear-gradient(135deg,#888,#c0c0c0,#e8e8e8)",color:"#0a0a0a"},
-    ghost:{background:"transparent",color:C.silver,border:`1px solid ${C.border}`},
-    success:{background:C.green,color:"#fff"},
-    danger:{background:C.red,color:"#fff"},
-  };
-  return <button style={{...base,...v[variant]}} onClick={onClick} disabled={disabled}>{children}</button>;
-};
-
-const Badge = ({children,color=C.silver}) => (
-  <span style={{background:color+"22",color,border:`1px solid ${color}44`,borderRadius:20,padding:"2px 10px",fontSize:11,fontWeight:600}}>{children}</span>
-);
-
-const Input = ({value,onChange,placeholder,style,type="text"}) => (
-  <input type={type} value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder}
-    style={{background:"#1a1a1a",border:`1px solid ${C.border}`,borderRadius:8,padding:"8px 12px",color:C.text,fontSize:13,width:"100%",outline:"none",boxSizing:"border-box",...style}}/>
-);
-
-const Sel = ({value,onChange,options,style}) => (
-  <select value={value} onChange={e=>onChange(e.target.value)}
-    style={{background:"#1a1a1a",border:`1px solid ${C.border}`,borderRadius:8,padding:"8px 12px",color:C.text,fontSize:13,outline:"none",...style}}>
-    {options.map(o=><option key={o.value} value={o.value}>{o.label}</option>)}
-  </select>
-);
-
-async function askClaude(prompt) {
-  try {
-    const res = await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]}),
-    });
-    const d = await res.json();
-    return d.content?.[0]?.text||"No response";
-  } catch { return "AI unavailable — check connection."; }
+const{useState,useEffect,useRef}=React;
+const C={bg:"#0a0a0a",card:"#141414",border:"#2a2a2a",silver:"#c0c0c0",silverDark:"#888",silverLight:"#e8e8e8",gold:"#b8972a",text:"#f0f0f0",muted:"#666",green:"#22c55e",red:"#ef4444",blue:"#3b82f6"};
+const GT={background:"linear-gradient(135deg,#c0c0c0,#e8e8e8,#888)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"};
+const Card=({children,style})=><div style={{background:C.card,border:"1px solid "+C.border,borderRadius:12,padding:20,...style}}>{children}</div>;
+const Btn=({children,onClick,variant="p",style,disabled})=>{const base={padding:"8px 16px",borderRadius:8,border:"none",cursor:disabled?"not-allowed":"pointer",fontSize:13,fontWeight:600,opacity:disabled?.5:1,...style};const vs={p:{background:"linear-gradient(135deg,#888,#c0c0c0,#e8e8e8)",color:"#0a0a0a"},g:{background:"transparent",color:C.silver,border:"1px solid "+C.border},s:{background:C.green,color:"#fff"},d:{background:C.red,color:"#fff"}};return <button style={{...base,...vs[variant]}} onClick={onClick} disabled={disabled}>{children}</button>;};
+const Badge=({children,color=C.silver})=><span style={{background:color+"22",color,border:"1px solid "+color+"44",borderRadius:20,padding:"2px 10px",fontSize:11,fontWeight:600}}>{children}</span>;
+const Input=({value,onChange,placeholder,style,type="text"})=><input type={type} value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} style={{background:"#1a1a1a",border:"1px solid "+C.border,borderRadius:8,padding:"8px 12px",color:C.text,fontSize:13,width:"100%",outline:"none",boxSizing:"border-box",...style}}/>;
+const Sel=({value,onChange,options,style})=><select value={value} onChange={e=>onChange(e.target.value)} style={{background:"#1a1a1a",border:"1px solid "+C.border,borderRadius:8,padding:"8px 12px",color:C.text,fontSize:13,outline:"none",...style}}>{options.map(o=><option key={o.value} value={o.value}>{o.label}</option>)}</select>;
+async function ai(p){try{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:p}]})});const d=await r.json();return d.content?.[0]?.text||"No response";}catch{return "AI unavailable.";}}
+function ScheduleModule(){
+const DAYS=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+const[shifts,setShifts]=useState([{id:1,officer:"Marcus Reid",site:"Hartsfield-Jackson Airport",day:"Mon",start:"06:00",end:"14:00",status:"confirmed"},{id:2,officer:"Tasha Williams",site:"Buckhead Office Tower",day:"Mon",start:"14:00",end:"22:00",status:"confirmed"},{id:3,officer:"Devon Clark",site:"Midtown Mall",day:"Tue",start:"08:00",end:"16:00",status:"pending"},{id:4,officer:"Janet Moore",site:"Airport",day:"Wed",start:"22:00",end:"06:00",status:"confirmed"}]);
+const[form,setForm]=useState({officer:"",site:"",day:"Mon",start:"08:00",end:"16:00"});
+const[hint,setHint]=useState("");const[loading,setLoading]=useState(false);
+const add=()=>{if(!form.officer||!form.site)return;setShifts(s=>[...s,{...form,id:Date.now(),status:"pending"}]);setForm({officer:"",site:"",day:"Mon",start:"08:00",end:"16:00"});};
+const optimize=async()=>{setLoading(true);setHint("");const t=await ai("Scheduling assistant for Special Services Protection Atlanta. Shifts: "+shifts.map(s=>s.officer+" at "+s.site+" "+s.day+" "+s.start+"-"+s.end).join("; ")+". Give 2-3 optimization tips.");setHint(t);setLoading(false);};
+return <div style={{display:"flex",flexDirection:"column",gap:16}}>
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}><h2 style={{margin:0,...GT,fontSize:20}}>Schedule / Shift Manager</h2><Btn onClick={optimize} disabled={loading}>{loading?"Analyzing...":"✦ AI Optimize"}</Btn></div>
+{hint&&<Card style={{border:"1px solid #b8972a44",background:"#1a1400"}}><p style={{margin:0,fontSize:13,color:C.silverLight,lineHeight:1.6}}><span style={{color:C.gold,fontWeight:700}}>✦ AI: </span>{hint}</p></Card>}
+{shifts.map(s=><Card key={s.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8,padding:"12px 16px"}}><div><span style={{fontWeight:700,color:C.text}}>{s.officer}</span><span style={{color:C.muted,fontSize:12,marginLeft:8}}>{s.site}</span></div><div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}><Badge color={C.silver}>{s.day}</Badge><span style={{color:C.silverDark,fontSize:12}}>{s.start}&#8211;{s.end}</span><Badge color={s.status==="confirmed"?C.green:"#f59e0b"}>{s.status}</Badge><Btn variant="g" style={{padding:"4px 10px",fontSize:11}} onClick={()=>setShifts(sh=>sh.filter(x=>x.id!==s.id))}>Remove</Btn></div></Card>)}
+<Card><p style={{margin:"0 0 12px",fontWeight:700,color:C.silver,fontSize:14}}>Add Shift</p><div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(130px,1fr))",gap:8}}><Input value={form.officer} onChange={v=>setForm(f=>({...f,officer:v}))} placeholder="Officer"/><Input value={form.site} onChange={v=>setForm(f=>({...f,site:v}))} placeholder="Site"/><Sel value={form.day} onChange={v=>setForm(f=>({...f,day:v}))} options={DAYS.map(d=>({value:d,label:d}))}/><Input value={form.start} onChange={v=>setForm(f=>({...f,start:v}))} type="time"/><Input value={form.end} onChange={v=>setForm(f=>({...f,end:v}))} type="time"/><Btn onClick={add}>+ Add</Btn></div></Card>
+</div>;}
+function RosterModule(){
+const[officers]=useState([{id:1,name:"Marcus Reid",role:"Senior Officer",cert:"Armed",status:"active",hired:"2021-03-15"},{id:2,name:"Tasha Williams",role:"Officer",cert:"Unarmed",status:"active",hired:"2022-07-01"},{id:3,name:"Devon Clark",role:"Officer",cert:"Armed",status:"active",hired:"2023-01-10"},{id:4,name:"Janet Moore",role:"Supervisor",cert:"Armed",status:"active",hired:"2020-06-20"},{id:5,name:"Ray Thompson",role:"Officer",cert:"Unarmed",status:"inactive",hired:"2022-11-05"}]);
+const[search,setSearch]=useState("");const[sel,setSel]=useState(null);const[bio,setBio]=useState("");const[loading,setLoading]=useState(false);
+const genBio=async o=>{setLoading(true);setBio("");const t=await ai("2-sentence pro bio for "+o.name+", "+o.role+", "+o.cert+" certified, hired "+o.hired+" at Special Services Protection Atlanta.");setBio(t);setLoading(false);};
+return <div style={{display:"flex",flexDirection:"column",gap:16}}>
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}><h2 style={{margin:0,...GT,fontSize:20}}>Officer Roster</h2><div style={{display:"flex",gap:8}}><Badge color={C.green}>{officers.filter(o=>o.status==="active").length} Active</Badge><Badge color={C.red}>{officers.filter(o=>o.status==="inactive").length} Inactive</Badge></div></div>
+<Input value={search} onChange={setSearch} placeholder="Search officers..."/>
+{bio&&<Card style={{border:"1px solid #3b82f644"}}><p style={{margin:0,fontSize:13,color:C.silverLight,lineHeight:1.6}}>{bio}</p></Card>}
+<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:12}}>
+{officers.filter(o=>o.name.toLowerCase().includes(search.toLowerCase())).map(o=><Card key={o.id} style={{cursor:"pointer",border:sel===o.id?"1px solid "+C.silver:"1px solid "+C.border}} onClick={()=>setSel(sel===o.id?null:o.id)}><div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}><div><p style={{margin:0,fontWeight:700,color:C.text}}>{o.name}</p><p style={{margin:"2px 0 0",fontSize:12,color:C.muted}}>{o.role}</p></div><Badge color={o.status==="active"?C.green:C.red}>{o.status}</Badge></div><div style={{display:"flex",gap:6}}><Badge color={o.cert==="Armed"?C.gold:C.silverDark}>{o.cert}</Badge><span style={{fontSize:11,color:C.muted}}>Since {o.hired}</span></div>{sel===o.id&&<div style={{marginTop:12,paddingTop:12,borderTop:"1px solid "+C.border}}><Btn onClick={()=>genBio(o)} disabled={loading} style={{fontSize:11}}>{loading?"Generating...":"✦ Generate Bio"}</Btn></div>}</Card>)}
+</div></div>;}
+const STATUSES=["Draft","Sent","Viewed","Overdue","Paid","Cancelled"];
+const SC={Draft:{bg:"#111",text:"#666",border:"#222"},Sent:{bg:"#0a0e14",text:"#5b9bd5",border:"#152030"},Viewed:{bg:"#141211",text:"#c0a060",border:"#2a2010"},Overdue:{bg:"#140a0a",text:"#d45050",border:"#300"},Paid:{bg:"#0a1410",text:"#4caf7a",border:"#102a1a"},Cancelled:{bg:"#0e0e0e",text:"#444",border:"#1a1a1a"}};
+const ISEED=[{id:"INV-001",client:"Hartsfield-Jackson Airport",email:"billing@hjairport.com",amount:12500,due:"2026-05-15",status:"Sent",issued:"2026-03-01",reminders:0,notes:"Event Security Detail",source:"manual"},{id:"INV-002",client:"Buckhead Properties LLC",email:"ap@buckhead.com",amount:8750,due:"2026-05-20",status:"Viewed",issued:"2026-03-15",reminders:1,notes:"Monthly Retainer",source:"manual"},{id:"INV-003",client:"Midtown Mall",email:"fin@midtown.com",amount:6200,due:"2026-03-30",status:"Overdue",issued:"2026-03-10",reminders:2,notes:"Executive Protection",source:"manual"},{id:"INV-004",client:"Atlanta Tech Campus",email:"acc@atc.com",amount:9400,due:"2026-05-30",status:"Draft",issued:"2026-04-01",reminders:0,notes:"VIP Detail",source:"manual"},{id:"INV-005",client:"Ponce City Market",email:"bill@pcm.com",amount:5800,due:"2026-03-10",status:"Paid",issued:"2026-02-10",reminders:0,notes:"Weekend Security",source:"manual"}];
+const fmt=n=>"$"+Number(n).toLocaleString();
+const today=()=>new Date().toISOString().split("T")[0];
+const dleft=d=>Math.ceil((new Date(d)-new Date())/86400000);
+const uid=()=>"INV-"+String(Math.floor(Math.random()*9000)+1000);
+function SBadge({status}){const s=SC[status]||SC.Draft;return <span style={{background:s.bg,color:s.text,border:"1px solid "+s.border,padding:"2px 10px",fontSize:10,fontWeight:700,letterSpacing:2,textTransform:"uppercase",borderRadius:2}}>{status}</span>;}
+function AgentChat({invoices,onAction}){
+const[msgs,setMsgs]=useState([{role:"assistant",text:"SSP INVOICE AGENT ONLINE. Full visibility into accounts. Flag overdue, draft reminders, update statuses. Standing by."}]);
+const[input,setInput]=useState("");const[loading,setLoading]=useState(false);const endRef=useRef(null);
+useEffect(()=>{endRef.current?.scrollIntoView({behavior:"smooth"});},[msgs]);
+const QUICK=["Flag overdue accounts","Pipeline summary","Draft overdue reminder","Collection analysis"];
+const send=async()=>{if(!input.trim()||loading)return;const txt=input.trim();setInput("");setLoading(true);setMsgs(m=>[...m,{role:"user",text:txt}]);
+const summary=invoices.map(i=>i.id+" "+i.client+" $"+i.amount+" due "+i.due+" "+i.status).join("\n");
+try{const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:800,system:"Invoice agent for Special Services Protection Atlanta. Today: "+today()+"\nINVOICES:\n"+summary+"\nEmit: ACTION: {\"type\":\"update\",\"id\":\"INV-XXX\",\"status\":\"Status\"} or ACTION: {\"type\":\"reminder\",\"id\":\"INV-XXX\"}\nBe concise.",messages:[...msgs.slice(-6).map(m=>({role:m.role,content:m.text})),{role:"user",content:txt}]})});
+const data=await res.json();const raw=data.content?.map(b=>b.type==="text"?b.text:"").join("")||"Error.";
+const re=/ACTION:\s*(\{[^\n]+\})/g;let m;while((m=re.exec(raw))!==null){try{onAction(JSON.parse(m[1]));}catch{}}
+setMsgs(ms=>[...ms,{role:"assistant",text:raw.replace(/ACTION:\s*\{[^\n]+\}/g,"").trim()}]);
+}catch{setMsgs(ms=>[...ms,{role:"assistant",text:"Connection error. Retry."}]);}setLoading(false);};
+return <div style={{display:"flex",flexDirection:"column",height:460,border:"1px solid "+C.border,borderTop:"2px solid "+C.silver,borderRadius:8,overflow:"hidden"}}>
+<div style={{padding:"10px 14px",background:"#0a0a0a",borderBottom:"1px solid "+C.border,display:"flex",alignItems:"center",gap:10}}><div style={{width:26,height:26,borderRadius:"50%",background:"linear-gradient(135deg,#444,#c0c0c0)",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:900,fontSize:12,color:"#0a0a0a"}}>S</div><div><div style={{fontSize:11,fontWeight:800,color:C.silverLight,letterSpacing:2}}>INVOICE AGENT</div><div style={{fontSize:9,color:C.muted}}>AI ACTIVE</div></div><div style={{marginLeft:"auto",width:8,height:8,borderRadius:"50%",background:C.green,boxShadow:"0 0 6px "+C.green}}/></div>
+<div style={{flex:1,overflowY:"auto",padding:12,display:"flex",flexDirection:"column",gap:8}}>{msgs.map((m,i)=><div key={i} style={{display:"flex",justifyContent:m.role==="user"?"flex-end":"flex-start"}}><div style={{maxWidth:"90%",padding:"8px 12px",background:m.role==="user"?"#141414":"#0d0d0d",border:"1px solid "+(m.role==="user"?C.silver:C.border),color:C.silverLight,fontSize:12,lineHeight:1.6,whiteSpace:"pre-wrap",borderRadius:8}}>{m.text}</div></div>)}{loading&&<div style={{display:"flex"}}><div style={{background:"#0d0d0d",border:"1px solid "+C.border,padding:"8px 12px",fontSize:12,color:C.muted,borderRadius:8}}>Processing...</div></div>}<div ref={endRef}/></div>
+{msgs.length<=2&&<div style={{padding:"0 12px 8px",display:"flex",flexDirection:"column",gap:4}}>{QUICK.map((q,i)=><button key={i} onClick={()=>setInput(q)} style={{background:"#0a0a0a",border:"1px solid "+C.border,padding:"5px 10px",fontSize:10,color:C.muted,cursor:"pointer",textAlign:"left",borderRadius:4}}>&#8250; {q}</button>)}</div>}
+<div style={{padding:"8px 10px",borderTop:"1px solid "+C.border,display:"flex",gap:6,background:"#0a0a0a"}}><input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()} placeholder="Ask the agent..." style={{flex:1,background:"#080808",border:"1px solid "+C.border,padding:"7px 10px",fontSize:12,color:C.silver,outline:"none",borderRadius:6}}/><Btn onClick={send} disabled={loading||!input.trim()} style={{padding:"7px 14px"}}>Send</Btn></div>
+</div>;}
+function InvoiceModule(){
+const[invoices,setInvoices]=useState(ISEED);const[subTab,setSubTab]=useState("list");const[filter,setFilter]=useState("All");const[showNew,setShowNew]=useState(false);const[expanded,setExpanded]=useState(null);const[toasts,setToasts]=useState([]);
+const toast=(msg,type="i")=>{const id=Date.now();setToasts(t=>[...t,{id,msg,type}]);setTimeout(()=>setToasts(t=>t.filter(x=>x.id!==id)),3500);};
+const act=a=>{if(a.type==="update"){setInvoices(l=>l.map(i=>i.id===a.id?{...i,status:a.status}:i));toast(a.id+" > "+a.status,"s");}else if(a.type==="reminder"){setInvoices(l=>l.map(i=>i.id===a.id?{...i,reminders:i.reminders+1}:i));toast("Reminder: "+a.id);}};
+const[nf,setNf]=useState({client:"",email:"",amount:"",due:"",notes:""});
+const save=()=>{if(!nf.client||!nf.amount||!nf.due)return;setInvoices(l=>[{...nf,amount:parseFloat(nf.amount),status:"Draft",issued:today(),reminders:0,id:uid(),source:"manual"},...l]);setShowNew(false);setNf({client:"",email:"",amount:"",due:"",notes:""});toast("Invoice created","s");};
+const out=invoices.filter(i=>!["Paid","Cancelled"].includes(i.status)).reduce((s,i)=>s+i.amount,0);
+const coll=invoices.filter(i=>i.status==="Paid").reduce((s,i)=>s+i.amount,0);
+const filt=filter==="All"?invoices:invoices.filter(i=>i.status===filter);
+const rate=invoices.length?Math.round(invoices.filter(i=>i.status==="Paid").length/invoices.length*100):0;
+return <div style={{display:"flex",flexDirection:"column",gap:16,position:"relative"}}>
+<div style={{position:"fixed",top:14,right:14,zIndex:400,display:"flex",flexDirection:"column",gap:6}}>{toasts.map(t=><div key={t.id} style={{background:"#0f0f0f",border:"1px solid "+(t.type==="s"?C.silver:C.border),color:t.type==="s"?C.silverLight:C.muted,padding:"8px 14px",fontSize:11,borderRadius:6}}>{t.type==="s"?"✓ ":""}{t.msg}</div>)}</div>
+{showNew&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.85)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:200}}><div style={{background:"#0c0c0c",border:"1px solid #333",borderTop:"2px solid "+C.silver,padding:28,width:400,borderRadius:8}}><p style={{margin:"0 0 16px",fontSize:16,fontWeight:800,color:C.silverLight}}>NEW INVOICE</p>{[["Client Name","client","text"],["Client Email","email","email"],["Amount ($)","amount","number"],["Due Date","due","date"],["Notes","notes","text"]].map(([l,k,t])=><div key={k} style={{marginBottom:12}}><label style={{fontSize:10,color:C.muted,letterSpacing:2,textTransform:"uppercase",display:"block",marginBottom:4}}>{l}</label><Input value={nf[k]} onChange={v=>setNf(f=>({...f,[k]:v}))} placeholder={l} type={t}/></div>)}<div style={{display:"flex",gap:10,marginTop:16}}><Btn variant="g" onClick={()=>setShowNew(false)} style={{flex:1}}>Cancel</Btn><Btn onClick={save} style={{flex:1}}>Create</Btn></div></div></div>}
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}><h2 style={{margin:0,...GT,fontSize:20}}>Invoice Management</h2><Btn onClick={()=>setShowNew(true)} style={{fontSize:12}}>+ New Invoice</Btn></div>
+<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(120px,1fr))",gap:12}}>{[["Outstanding",fmt(out),C.silver],["Collected",fmt(coll),C.green],["Overdue",invoices.filter(i=>i.status==="Overdue").length+" Accts",C.red],["Rate",rate+"%","#c0a040"]].map(([l,v,c])=><Card key={l} style={{textAlign:"center"}}><p style={{margin:"0 0 4px",fontSize:11,color:C.muted}}>{l}</p><p style={{margin:0,fontSize:18,fontWeight:800,color:c}}>{v}</p></Card>)}</div>
+<div style={{display:"flex",gap:4,borderBottom:"1px solid "+C.border,paddingBottom:8}}>{[["list","◧ Invoices"],["analytics","◈ Analytics"],["agent","⬡ Agent"]].map(([k,l])=><button key={k} onClick={()=>setSubTab(k)} style={{padding:"6px 14px",background:"none",border:"none",borderBottom:subTab===k?"2px solid "+C.silver:"2px solid transparent",color:subTab===k?C.silverLight:C.muted,fontSize:12,fontWeight:subTab===k?700:400,cursor:"pointer"}}>{l}</button>)}</div>
+{subTab==="list"&&<><div style={{display:"flex",gap:5,flexWrap:"wrap"}}>{["All",...STATUSES].map(s=><button key={s} onClick={()=>setFilter(s)} style={{padding:"3px 10px",background:filter===s?"#141414":"transparent",border:"1px solid "+(filter===s?C.silver:C.border),color:filter===s?C.silverLight:C.muted,fontSize:10,fontWeight:700,letterSpacing:1,textTransform:"uppercase",cursor:"pointer",borderRadius:4}}>{s}</button>)}</div>
+<div style={{display:"flex",flexDirection:"column",gap:8}}>{filt.map(inv=><Card key={inv.id} style={{padding:"13px 16px",cursor:"pointer",borderLeft:"3px solid "+(SC[inv.status]?.text||C.border)}} onClick={()=>setExpanded(expanded===inv.id?null:inv.id)}><div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:8}}><div><span style={{fontWeight:700,color:C.text,fontSize:14}}>{inv.client}</span> <span style={{color:C.muted,fontSize:11}}>{inv.id}</span> <SBadge status={inv.status}/><div style={{fontSize:11,color:C.muted,marginTop:4}}>{inv.notes}</div><div style={{fontSize:10,color:C.muted,marginTop:2}}>Due: <span style={{color:inv.status==="Overdue"?"#c05050":C.silver}}>{inv.due}</span>{!["Paid","Cancelled"].includes(inv.status)&&<span style={{marginLeft:8,color:dleft(inv.due)<0?"#c05050":dleft(inv.due)<=7?"#c0a040":C.green,fontWeight:700}}>{dleft(inv.due)<0?Math.abs(dleft(inv.due))+"d overdue":dleft(inv.due)+"d left"}</span>}{inv.reminders>0&&<span style={{marginLeft:8,color:"#c0a040"}}>&#9674; {inv.reminders} reminder{inv.reminders>1?"s":""}</span>}</div></div><div style={{textAlign:"right"}}><div style={{fontSize:20,fontWeight:900,color:C.silverLight}}>{fmt(inv.amount)}</div><div style={{fontSize:9,color:C.muted,marginTop:2}}>Issued {inv.issued}</div></div></div>{expanded===inv.id&&<div style={{marginTop:12,paddingTop:12,borderTop:"1px solid "+C.border,display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}><span style={{fontSize:9,color:C.muted}}>MOVE TO:</span>{STATUSES.filter(s=>s!==inv.status).map(s=><button key={s} onClick={e=>{e.stopPropagation();setInvoices(l=>l.map(i=>i.id===inv.id?{...i,status:s}:i));toast(inv.id+" > "+s,"s");}} style={{padding:"3px 8px",background:SC[s].bg,border:"1px solid "+SC[s].border,color:SC[s].text,fontSize:9,fontWeight:700,letterSpacing:1,textTransform:"uppercase",cursor:"pointer",borderRadius:3}}>{s}</button>)}<Btn variant="g" style={{fontSize:10,padding:"3px 8px",marginLeft:"auto"}} onClick={e=>{e.stopPropagation();setInvoices(l=>l.map(i=>i.id===inv.id?{...i,reminders:i.reminders+1}:i));toast("Reminder: "+inv.id);}}>&#9674; Remind</Btn></div>}</Card>)}{filt.length===0&&<div style={{textAlign:"center",padding:40,color:C.muted,fontSize:12,letterSpacing:3}}>No records found</div>}</div></>}
+{subTab==="analytics"&&<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}><Card><p style={{margin:"0 0 12px",fontWeight:700,color:C.silver,fontSize:13,letterSpacing:2,textTransform:"uppercase"}}>Value by Status</p>{STATUSES.map(s=>{const v=invoices.filter(i=>i.status===s).reduce((a,b)=>a+b.amount,0);const mx=Math.max(...STATUSES.map(st=>invoices.filter(i=>i.status===st).reduce((a,b)=>a+b.amount,0)),1);return v>0?<div key={s} style={{marginBottom:10}}><div style={{display:"flex",justifyContent:"space-between",fontSize:11,marginBottom:3}}><span style={{color:SC[s].text,textTransform:"uppercase"}}>{s}</span><span style={{color:C.silver,fontWeight:700}}>{fmt(v)}</span></div><div style={{background:"#0a0a0a",height:5,border:"1px solid "+C.border}}><div style={{height:"100%",background:SC[s].text,width:(v/mx*100)+"%",transition:"width .4s"}}/></div></div>:null;})}</Card><Card><p style={{margin:"0 0 12px",fontWeight:700,color:C.silver,fontSize:13,letterSpacing:2,textTransform:"uppercase"}}>Aging</p><div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8}}>{[["CURRENT",i=>dleft(i.due)>0,C.silver],["DUE SOON",i=>dleft(i.due)<=7&&dleft(i.due)>=0,"#c0a040"],["1-30 DAYS",i=>dleft(i.due)<0&&dleft(i.due)>=-30,"#c05050"],["30+ DAYS",i=>dleft(i.due)<-30,"#801010"]].map(([label,fn,color])=>{const g=invoices.filter(i=>!["Paid","Cancelled"].includes(i.status)&&fn(i));return <div key={label} style={{background:"#0a0a0a",border:"1px solid "+C.border,borderTop:"2px solid "+color,padding:10,textAlign:"center"}}><div style={{fontSize:20,fontWeight:900,color}}>{g.length}</div><div style={{fontSize:9,color:C.muted,letterSpacing:2,textTransform:"uppercase",marginTop:2}}>{label}</div><div style={{fontSize:11,fontWeight:700,color:C.silver,marginTop:3}}>{fmt(g.reduce((a,i)=>a+i.amount,0))}</div></div>;})}</div></Card></div>}
+{subTab==="agent"&&<AgentChat invoices={invoices} onAction={act}/>}
+</div>;}
+function LinkedInModule(){
+const[topic,setTopic]=useState("new_contract");const[detail,setDetail]=useState("");const[tone,setTone]=useState("professional");const[post,setPost]=useState("");const[loading,setLoading]=useState(false);const[copied,setCopied]=useState(false);
+const generate=async()=>{setLoading(true);setPost("");const labels={new_contract:"New Contract Win",officer_spotlight:"Officer Spotlight",safety_tip:"Safety Tip",company_growth:"Company Growth",community:"Community Involvement"};const t=await ai("LinkedIn post for Special Services Protection, Atlanta security firm. Topic: "+labels[topic]+". "+(detail?"Details: "+detail+". ":" ")+"Tone: "+tone+". 3-5 hashtags. Under 220 words.");setPost(t);setLoading(false);};
+const copy=()=>{navigator.clipboard.writeText(post);setCopied(true);setTimeout(()=>setCopied(false),2000);};
+return <div style={{display:"flex",flexDirection:"column",gap:16}}><h2 style={{margin:0,...GT,fontSize:20}}>LinkedIn Post Generator</h2><Card><div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:12,marginBottom:12}}><div><p style={{margin:"0 0 6px",fontSize:12,color:C.muted}}>Topic</p><Sel value={topic} onChange={setTopic} style={{width:"100%"}} options={[{value:"new_contract",label:"New Contract"},{value:"officer_spotlight",label:"Officer Spotlight"},{value:"safety_tip",label:"Safety Tip"},{value:"company_growth",label:"Company Growth"},{value:"community",label:"Community"}]}/></div><div><p style={{margin:"0 0 6px",fontSize:12,color:C.muted}}>Tone</p><Sel value={tone} onChange={setTone} style={{width:"100%"}} options={[{value:"professional",label:"Professional"},{value:"bold",label:"Bold"},{value:"warm",label:"Warm"}]}/></div></div><textarea value={detail} onChange={e=>setDetail(e.target.value)} placeholder="Add details..." style={{width:"100%",background:"#1a1a1a",border:"1px solid "+C.border,borderRadius:8,padding:"10px 12px",color:C.text,fontSize:13,resize:"vertical",minHeight:70,outline:"none",boxSizing:"border-box",fontFamily:"inherit",marginBottom:12}}/><Btn onClick={generate} disabled={loading}>{loading?"Writing...":"✦ Generate Post"}</Btn></Card>{post&&<Card style={{border:"1px solid #3b82f633"}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}><span style={{fontSize:13,color:C.blue,fontWeight:700}}>✦ Post Ready</span><div style={{display:"flex",gap:8}}><Btn variant="g" style={{fontSize:11,padding:"4px 10px"}} onClick={copy}>{copied?"✓ Copied!":"Copy"}</Btn><Btn variant="g" style={{fontSize:11,padding:"4px 10px"}} onClick={generate}>Regen</Btn></div></div><p style={{margin:0,fontSize:13,color:C.silverLight,lineHeight:1.7,whiteSpace:"pre-wrap"}}>{post}</p></Card>}</div>;}
+function LeadsModule(){
+const[leads,setLeads]=useState([{id:1,name:"Ponce City Market",contact:"David Kim",value:15000,status:"warm",notes:"Referred by Marcus Reid"},{id:2,name:"Emory University",contact:"Sarah Chen",value:22000,status:"hot",notes:"Looking to replace vendor"},{id:3,name:"Atlanta Marriott",contact:"James Porter",value:18500,status:"cold",notes:"Early stage inquiry"}]);
+const[form,setForm]=useState({name:"",contact:"",value:"",notes:""});const[hint,setHint]=useState("");const[loading,setLoading]=useState(false);
+const sc={hot:C.red,warm:"#f59e0b",cold:C.blue,closed:C.green};
+const pipeline=leads.filter(l=>l.status!=="closed").reduce((a,b)=>a+(b.value||0),0);
+const pitch=async l=>{setLoading(true);setHint("");const t=await ai("Professional follow-up from Special Services Protection to "+l.contact+" at "+l.name+". Context: "+l.notes+". Value: $"+l.value+"/yr. Under 100 words.");setHint(t);setLoading(false);};
+const add=()=>{if(!form.name)return;setLeads(l=>[...l,{...form,id:Date.now(),status:"warm",value:parseFloat(form.value)||0}]);setForm({name:"",contact:"",value:"",notes:""});};
+return <div style={{display:"flex",flexDirection:"column",gap:16}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}><h2 style={{margin:0,...GT,fontSize:20}}>Leads Agent</h2><Card style={{padding:"8px 16px"}}><span style={{fontSize:12,color:C.muted}}>Pipeline: </span><span style={{fontWeight:800,color:C.green}}>{fmt(pipeline)}</span></Card></div>{hint&&<Card style={{border:"1px solid #b8972a44",background:"#1a1400"}}><p style={{margin:0,fontSize:13,color:C.silverLight,lineHeight:1.6}}>{hint}</p></Card>}{leads.map(l=><Card key={l.id} style={{padding:"14px 16px"}}><div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:8}}><div><span style={{fontWeight:700,color:C.text,fontSize:14}}>{l.name}</span><span style={{color:C.muted,fontSize:12,marginLeft:8}}>{l.contact}</span></div><div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}><span style={{fontWeight:700,color:C.silverLight}}>{fmt(l.value||0)}/yr</span><Badge color={sc[l.status]}>{l.status}</Badge><Sel value={l.status} onChange={v=>setLeads(ls=>ls.map(x=>x.id===l.id?{...x,status:v}:x))} options={["hot","warm","cold","closed"].map(s=>({value:s,label:s.charAt(0).toUpperCase()+s.slice(1)}))} style={{fontSize:11,padding:"3px 8px"}}/><Btn variant="g" style={{fontSize:11,padding:"4px 10px"}} onClick={()=>pitch(l)} disabled={loading}>✦ Pitch</Btn></div></div>{l.notes&&<p style={{margin:"8px 0 0",fontSize:12,color:C.muted}}>{l.notes}</p>}</Card>)}<Card><p style={{margin:"0 0 12px",fontWeight:700,color:C.silver,fontSize:14}}>Add Lead</p><div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gap:8}}><Input value={form.name} onChange={v=>setForm(f=>({...f,name:v}))} placeholder="Business"/><Input value={form.contact} onChange={v=>setForm(f=>({...f,contact:v}))} placeholder="Contact"/><Input value={form.value} onChange={v=>setForm(f=>({...f,value:v}))} placeholder="Value" type="number"/><Input value={form.notes} onChange={v=>setForm(f=>({...f,notes:v}))} placeholder="Notes"/><Btn onClick={add}>+ Add</Btn></div></Card></div>;}
+function PayrollModule(){
+const[payroll,setPayroll]=useState([{id:1,name:"Marcus Reid",role:"Senior Officer",hours:80,rate:22,status:"processed"},{id:2,name:"Tasha Williams",role:"Officer",hours:76,rate:18,status:"processed"},{id:3,name:"Devon Clark",role:"Officer",hours:72,rate:18,status:"pending"},{id:4,name:"Janet Moore",role:"Supervisor",hours:80,rate:26,status:"pending"},{id:5,name:"Ray Thompson",role:"Officer",hours:40,rate:18,status:"on-hold"}]);
+const[hint,setHint]=useState("");const[loading,setLoading]=useState(false);
+const gross=e=>e.hours*e.rate;const totalGross=payroll.reduce((a,b)=>a+gross(b),0);
+const sc={processed:C.green,pending:"#f59e0b","on-hold":C.red};
+const summarize=async()=>{setLoading(true);setHint("");const t=await ai("Payroll for Special Services Protection: "+payroll.map(e=>e.name+": "+e.hours+"hrs @ $"+e.rate+"/hr = $"+gross(e)).join("; ")+". Total: $"+totalGross+". 3 sentences, flag risks.");setHint(t);setLoading(false);};
+return <div style={{display:"flex",flexDirection:"column",gap:16}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}><h2 style={{margin:0,...GT,fontSize:20}}>Payroll &#8212; Paychex</h2><Btn onClick={summarize} disabled={loading}>{loading?"Analyzing...":"✦ AI Summary"}</Btn></div><div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(120px,1fr))",gap:12}}>{[["Total Gross","$"+totalGross.toLocaleString(),C.silver],["Officers",payroll.length,C.blue],["Pending",payroll.filter(p=>p.status==="pending").length,"#f59e0b"],["Processed",payroll.filter(p=>p.status==="processed").length,C.green]].map(([l,v,c])=><Card key={l} style={{textAlign:"center"}}><p style={{margin:"0 0 4px",fontSize:11,color:C.muted}}>{l}</p><p style={{margin:0,fontSize:20,fontWeight:800,color:c}}>{v}</p></Card>)}</div>{hint&&<Card style={{border:"1px solid #b8972a44",background:"#1a1400"}}><p style={{margin:0,fontSize:13,color:C.silverLight,lineHeight:1.6}}>{hint}</p></Card>}{payroll.map(e=><Card key={e.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8,padding:"12px 16px"}}><div><span style={{fontWeight:700,color:C.text}}>{e.name}</span><span style={{color:C.muted,fontSize:12,marginLeft:8}}>{e.role}</span></div><div style={{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}><span style={{fontSize:12,color:C.silverDark}}>{e.hours}hrs @ ${e.rate}/hr</span><span style={{fontWeight:700,color:C.silverLight}}>${gross(e).toLocaleString()}</span><Badge color={sc[e.status]}>{e.status}</Badge>{e.status==="pending"&&<Btn variant="s" style={{fontSize:11,padding:"4px 10px"}} onClick={()=>setPayroll(p=>p.map(x=>x.id===e.id?{...x,status:"processed"}:x))}>Approve</Btn>}</div></Card>)}<Card style={{border:"1px solid #3b82f633",padding:16}}><p style={{margin:"0 0 8px",fontSize:13,color:C.blue,fontWeight:700}}>&#128279; Paychex Sync</p><p style={{margin:"0 0 12px",fontSize:12,color:C.muted}}>Connect Paychex to auto-sync hours and run payroll.</p><Btn variant="g" onClick={()=>alert("Add Paychex API key in Settings.")}>Connect Paychex</Btn></Card></div>;}
+const MODS=[{id:"schedule",label:"Schedule",icon:"&#128197;"},{id:"roster",label:"Roster",icon:"&#128110;"},{id:"invoices",label:"Invoices",icon:"&#128188;"},{id:"linkedin",label:"LinkedIn",icon:"&#128279;"},{id:"leads",label:"Leads",icon:"&#127919;"},{id:"payroll",label:"Payroll",icon:"&#128176;"}];
+function App(){
+const[active,setActive]=useState("schedule");
+const render=()=>{switch(active){case"schedule":return<ScheduleModule/>;case"roster":return<RosterModule/>;case"invoices":return<InvoiceModule/>;case"linkedin":return<LinkedInModule/>;case"leads":return<LeadsModule/>;case"payroll":return<PayrollModule/>;default:return null;}};
+return <div style={{minHeight:"100vh",background:C.bg,color:C.text,fontFamily:"Inter,system-ui,sans-serif"}}>
+<div style={{background:"#0d0d0d",borderBottom:"1px solid "+C.border,padding:"14px 24px",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12}}><div style={{display:"flex",alignItems:"center",gap:12}}><div style={{width:38,height:38,borderRadius:"50%",background:"linear-gradient(135deg,#444,#c0c0c0)",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:900,fontSize:18,color:"#0a0a0a",flexShrink:0}}>S</div><div><h1 style={{margin:0,fontSize:16,fontWeight:800,...GT}}>Special Services Protection</h1><p style={{margin:0,fontSize:11,color:C.muted}}>Business Command Center &#183; Atlanta, GA</p></div></div><div style={{display:"flex",gap:6,alignItems:"center"}}><Badge color={C.green}>&#9679; Live</Badge><span style={{fontSize:12,color:C.muted}}>{new Date().toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}</span></div></div>
+<div style={{background:"#0d0d0d",borderBottom:"1px solid "+C.border,padding:"0 24px",display:"flex",gap:2,overflowX:"auto"}}>{MODS.map(m=><button key={m.id} onClick={()=>setActive(m.id)} style={{padding:"12px 16px",background:"none",border:"none",borderBottom:active===m.id?"2px solid "+C.silver:"2px solid transparent",color:active===m.id?C.silverLight:C.muted,fontSize:13,fontWeight:active===m.id?700:400,cursor:"pointer",whiteSpace:"nowrap",display:"flex",alignItems:"center",gap:6}} dangerouslySetInnerHTML={{__html:m.icon+" "+m.label}}></button>)}</div>
+<div style={{padding:"24px",maxWidth:1100,margin:"0 auto"}}>{render()}</div></div>;
 }
-
-// ── SCHEDULE ─────────────────────────────────────────────────
-const DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
-
-function ScheduleModule() {
-  const [shifts,setShifts] = useState([
-    {id:1,officer:"Marcus Reid",site:"Hartsfield-Jackson Airport",day:"Mon",start:"06:00",end:"14:00",status:"confirmed"},
-    {id:2,officer:"Tasha Williams",site:"Buckhead Office Tower",day:"Mon",start:"14:00",end:"22:00",status:"confirmed"},
-    {id:3,officer:"Devon Clark",site:"Midtown Mall",day:"Tue",start:"08:00",end:"16:00",status:"pending"},
-    {id:4,officer:"Janet Moore",site:"Hartsfield-Jackson Airport",day:"Wed",start:"22:00",end:"06:00",status:"confirmed"},
-  ]);
-  const [form,setForm] = useState({officer:"",site:"",day:"Mon",start:"08:00",end:"16:00"});
-  const [ai,setAi] = useState(""); const [loading,setLoading] = useState(false);
-
-  const add = () => {
-    if(!form.officer||!form.site) return;
-    setShifts(s=>[...s,{...form,id:Date.now(),status:"pending"}]);
-    setForm({officer:"",site:"",day:"Mon",start:"08:00",end:"16:00"});
-  };
-  const optimize = async () => {
-    setLoading(true); setAi("");
-    const txt = await askClaude("You are a scheduling assistant for Special Services Protection, an Atlanta security firm. Review these shifts: "+shifts.map(s=>`${s.officer} at ${s.site} on ${s.day} ${s.start}-${s.end}`).join("; ")+". Give 2-3 brief optimization suggestions for coverage gaps or officer fatigue.");
-    setAi(txt); setLoading(false);
-  };
-
-  return (
-    <div style={{display:"flex",flexDirection:"column",gap:16}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
-        <h2 style={{margin:0,...gradText,fontSize:20}}>Schedule / Shift Manager</h2>
-        <Btn onClick={optimize} disabled={loading}>{loading?"Analyzing...":"✦ AI Optimize"}</Btn>
-      </div>
-      {ai&&<Card style={{border:`1px solid ${C.gold}44`,background:"#1a1400"}}><p style={{margin:0,fontSize:13,color:C.silverLight,lineHeight:1.6}}><span style={{color:C.gold,fontWeight:700}}>✦ AI: </span>{ai}</p></Card>}
-      {shifts.map(s=>(
-        <Card key={s.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8,padding:"12px 16px"}}>
-          <div><span style={{fontWeight:700,color:C.text,fontSize:14}}>{s.officer}</span><span style={{color:C.muted,fontSize:12,marginLeft:8}}>{s.site}</span></div>
-          <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
-            <Badge color={C.silver}>{s.day}</Badge>
-            <span style={{color:C.silverDark,fontSize:12}}>{s.start}–{s.end}</span>
-            <Badge color={s.status==="confirmed"?C.green:"#f59e0b"}>{s.status}</Badge>
-            <Btn variant="ghost" style={{padding:"4px 10px",fontSize:11}} onClick={()=>setShifts(sh=>sh.filter(x=>x.id!==s.id))}>Remove</Btn>
-          </div>
-        </Card>
-      ))}
-      <Card>
-        <p style={{margin:"0 0 12px",fontWeight:700,color:C.silver,fontSize:14}}>Add Shift</p>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gap:8}}>
-          <Input value={form.officer} onChange={v=>setForm(f=>({...f,officer:v}))} placeholder="Officer name"/>
-          <Input value={form.site} onChange={v=>setForm(f=>({...f,site:v}))} placeholder="Site / location"/>
-          <Sel value={form.day} onChange={v=>setForm(f=>({...f,day:v}))} options={DAYS.map(d=>({value:d,label:d}))}/>
-          <Input value={form.start} onChange={v=>setForm(f=>({...f,start:v}))} type="time"/>
-          <Input value={form.end} onChange={v=>setForm(f=>({...f,end:v}))} type="time"/>
-          <Btn onClick={add}>+ Add</Btn>
-        </div>
-      </Card>
-    </div>
-  );
-}
-
-// ── ROSTER ───────────────────────────────────────────────────
-function RosterModule() {
-  const [officers] = useState([
-    {id:1,name:"Marcus Reid",role:"Senior Officer",cert:"Armed",status:"active",hired:"2021-03-15"},
-    {id:2,name:"Tasha Williams",role:"Officer",cert:"Unarmed",status:"active",hired:"2022-07-01"},
-    {id:3,name:"Devon Clark",role:"Officer",cert:"Armed",status:"active",hired:"2023-01-10"},
-    {id:4,name:"Janet Moore",role:"Supervisor",cert:"Armed",status:"active",hired:"2020-06-20"},
-    {id:5,name:"Ray Thompson",role:"Officer",cert:"Unarmed",status:"inactive",hired:"2022-11-05"},
-  ]);
-  const [search,setSearch] = useState("");
-  const [selId,setSelId] = useState(null);
-  const [ai,setAi] = useState(""); const [loading,setLoading] = useState(false);
-
-  const genBio = async o => {
-    setLoading(true); setAi("");
-    const txt = await askClaude(`Write a 2-sentence professional bio for security officer ${o.name}, ${o.role}, ${o.cert} certified, hired ${o.hired} at Special Services Protection in Atlanta, GA.`);
-    setAi(txt); setLoading(false);
-  };
-
-  return (
-    <div style={{display:"flex",flexDirection:"column",gap:16}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
-        <h2 style={{margin:0,...gradText,fontSize:20}}>Officer Roster</h2>
-        <div style={{display:"flex",gap:8}}>
-          <Badge color={C.green}>{officers.filter(o=>o.status==="active").length} Active</Badge>
-          <Badge color={C.red}>{officers.filter(o=>o.status==="inactive").length} Inactive</Badge>
-        </div>
-      </div>
-      <Input value={search} onChange={setSearch} placeholder="Search officers..."/>
-      {ai&&<Card style={{border:`1px solid ${C.blue}44`}}><p style={{margin:0,fontSize:13,color:C.silverLight,lineHeight:1.6}}>{ai}</p></Card>}
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:12}}>
-        {officers.filter(o=>o.name.toLowerCase().includes(search.toLowerCase())).map(o=>(
-          <Card key={o.id} style={{cursor:"pointer",border:selId===o.id?`1px solid ${C.silver}`:`1px solid ${C.border}`}} onClick={()=>setSelId(selId===o.id?null:o.id)}>
-            <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}>
-              <div><p style={{margin:0,fontWeight:700,color:C.text}}>{o.name}</p><p style={{margin:"2px 0 0",fontSize:12,color:C.muted}}>{o.role}</p></div>
-              <Badge color={o.status==="active"?C.green:C.red}>{o.status}</Badge>
-            </div>
-            <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-              <Badge color={o.cert==="Armed"?C.gold:C.silverDark}>{o.cert}</Badge>
-              <span style={{fontSize:11,color:C.muted}}>Since {o.hired}</span>
-            </div>
-            {selId===o.id&&<div style={{marginTop:12,paddingTop:12,borderTop:`1px solid ${C.border}`}}>
-              <Btn onClick={()=>genBio(o)} disabled={loading} style={{fontSize:11}}>{loading?"Generating...":"✦ Generate Bio"}</Btn>
-            </div>}
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ── INVOICES ─────────────────────────────────────────────────
-function InvoiceModule() {
-  const [invoices,setInvoices] = useState([
-    {id:"INV-001",client:"Hartsfield-Jackson Airport",amount:12500,status:"paid",due:"2025-03-15"},
-    {id:"INV-002",client:"Buckhead Properties LLC",amount:8750,status:"pending",due:"2025-04-10"},
-    {id:"INV-003",client:"Midtown Mall Management",amount:6200,status:"overdue",due:"2025-03-30"},
-    {id:"INV-004",client:"Atlanta Tech Campus",amount:9400,status:"pending",due:"2025-04-20"},
-  ]);
-  const [form,setForm] = useState({client:"",amount:"",due:""});
-  const [ai,setAi] = useState(""); const [loading,setLoading] = useState(false);
-  const fmt = n=>`$${n.toLocaleString()}`;
-  const sc = {paid:C.green,pending:"#f59e0b",overdue:C.red};
-
-  const remind = async inv => {
-    setLoading(true); setAi("");
-    const txt = await askClaude(`Write a professional payment reminder from Special Services Protection to ${inv.client} for invoice ${inv.id} of $${inv.amount} due ${inv.due}. Under 80 words.`);
-    setAi(txt); setLoading(false);
-  };
-  const add = () => {
-    if(!form.client||!form.amount) return;
-    setInvoices(i=>[...i,{id:`INV-00${invoices.length+1}`,client:form.client,amount:parseFloat(form.amount),status:"pending",due:form.due}]);
-    setForm({client:"",amount:"",due:""});
-  };
-
-  return (
-    <div style={{display:"flex",flexDirection:"column",gap:16}}>
-      <h2 style={{margin:0,...gradText,fontSize:20}}>Invoice Tracker</h2>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(130px,1fr))",gap:12}}>
-        {[["Total",invoices.reduce((a,b)=>a+b.amount,0),C.silver],["Paid",invoices.filter(i=>i.status==="paid").reduce((a,b)=>a+b.amount,0),C.green],["Pending",invoices.filter(i=>i.status==="pending").reduce((a,b)=>a+b.amount,0),"#f59e0b"],["Overdue",invoices.filter(i=>i.status==="overdue").reduce((a,b)=>a+b.amount,0),C.red]].map(([l,v,c])=>(
-          <Card key={l} style={{textAlign:"center"}}><p style={{margin:"0 0 4px",fontSize:11,color:C.muted}}>{l}</p><p style={{margin:0,fontSize:20,fontWeight:800,color:c}}>{fmt(v)}</p></Card>
-        ))}
-      </div>
-      {ai&&<Card style={{border:`1px solid ${C.blue}44`,background:"#001122"}}><p style={{margin:0,fontSize:12,color:C.silverLight,lineHeight:1.6,whiteSpace:"pre-wrap"}}>{ai}</p></Card>}
-      {invoices.map(inv=>(
-        <Card key={inv.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8,padding:"12px 16px"}}>
-          <div><span style={{fontWeight:700,color:C.text}}>{inv.id}</span><span style={{color:C.muted,fontSize:12,marginLeft:8}}>{inv.client}</span></div>
-          <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
-            <span style={{fontWeight:700,color:C.silverLight}}>{fmt(inv.amount)}</span>
-            <Badge color={sc[inv.status]}>{inv.status}</Badge>
-            {inv.status!=="paid"&&<Btn variant="ghost" style={{fontSize:11,padding:"4px 10px"}} onClick={()=>remind(inv)} disabled={loading}>✦ Remind</Btn>}
-            {inv.status!=="paid"&&<Btn variant="success" style={{fontSize:11,padding:"4px 10px"}} onClick={()=>setInvoices(l=>l.map(x=>x.id===inv.id?{...x,status:"paid"}:x))}>Mark Paid</Btn>}
-          </div>
-        </Card>
-      ))}
-      <Card>
-        <p style={{margin:"0 0 12px",fontWeight:700,color:C.silver,fontSize:14}}>New Invoice</p>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))",gap:8}}>
-          <Input value={form.client} onChange={v=>setForm(f=>({...f,client:v}))} placeholder="Client name"/>
-          <Input value={form.amount} onChange={v=>setForm(f=>({...f,amount:v}))} placeholder="Amount ($)" type="number"/>
-          <Input value={form.due} onChange={v=>setForm(f=>({...f,due:v}))} type="date"/>
-          <Btn onClick={add}>+ Create</Btn>
-        </div>
-      </Card>
-    </div>
-  );
-}
-
-// ── LINKEDIN ─────────────────────────────────────────────────
-function LinkedInModule() {
-  const [topic,setTopic] = useState("new_contract");
-  const [detail,setDetail] = useState(""); const [tone,setTone] = useState("professional");
-  const [post,setPost] = useState(""); const [loading,setLoading] = useState(false); const [copied,setCopied] = useState(false);
-
-  const generate = async () => {
-    setLoading(true); setPost("");
-    const labels = {new_contract:"New Contract Win",officer_spotlight:"Officer Spotlight",safety_tip:"Security Safety Tip",company_growth:"Company Growth",community:"Community Involvement"};
-    const txt = await askClaude(`Write a LinkedIn post for Special Services Protection, an Atlanta-based security firm. Topic: ${labels[topic]}. ${detail?`Details: ${detail}.`:""} Tone: ${tone}. Include 3-5 relevant hashtags. Under 220 words. Make it authentic and professional.`);
-    setPost(txt); setLoading(false);
-  };
-  const copy = () => { navigator.clipboard.writeText(post); setCopied(true); setTimeout(()=>setCopied(false),2000); };
-
-  return (
-    <div style={{display:"flex",flexDirection:"column",gap:16}}>
-      <h2 style={{margin:0,...gradText,fontSize:20}}>LinkedIn Post Generator</h2>
-      <Card>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:12,marginBottom:12}}>
-          <div><p style={{margin:"0 0 6px",fontSize:12,color:C.muted}}>Topic</p>
-            <Sel value={topic} onChange={setTopic} style={{width:"100%"}} options={[{value:"new_contract",label:"New Contract Win"},{value:"officer_spotlight",label:"Officer Spotlight"},{value:"safety_tip",label:"Safety Tip"},{value:"company_growth",label:"Company Growth"},{value:"community",label:"Community"}]}/>
-          </div>
-          <div><p style={{margin:"0 0 6px",fontSize:12,color:C.muted}}>Tone</p>
-            <Sel value={tone} onChange={setTone} style={{width:"100%"}} options={[{value:"professional",label:"Professional"},{value:"bold",label:"Bold & Confident"},{value:"warm",label:"Warm & Community"}]}/>
-          </div>
-        </div>
-        <textarea value={detail} onChange={e=>setDetail(e.target.value)} placeholder="Add specific details (optional)..."
-          style={{width:"100%",background:"#1a1a1a",border:`1px solid ${C.border}`,borderRadius:8,padding:"10px 12px",color:C.text,fontSize:13,resize:"vertical",minHeight:80,outline:"none",boxSizing:"border-box",fontFamily:"inherit",marginBottom:12}}/>
-        <Btn onClick={generate} disabled={loading}>{loading?"Writing...":"✦ Generate Post"}</Btn>
-      </Card>
-      {post&&<Card style={{border:`1px solid ${C.blue}33`}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-          <span style={{fontSize:13,color:C.blue,fontWeight:700}}>✦ Generated Post</span>
-          <div style={{display:"flex",gap:8}}>
-            <Btn variant="ghost" style={{fontSize:11,padding:"4px 10px"}} onClick={copy}>{copied?"✓ Copied!":"Copy"}</Btn>
-            <Btn variant="ghost" style={{fontSize:11,padding:"4px 10px"}} onClick={generate}>Regenerate</Btn>
-          </div>
-        </div>
-        <p style={{margin:0,fontSize:13,color:C.silverLight,lineHeight:1.7,whiteSpace:"pre-wrap"}}>{post}</p>
-      </Card>}
-    </div>
-  );
-}
-
-// ── LEADS ────────────────────────────────────────────────────
-function LeadsModule() {
-  const [leads,setLeads] = useState([
-    {id:1,name:"Ponce City Market",contact:"David Kim",value:15000,status:"warm",notes:"Referred by Marcus Reid"},
-    {id:2,name:"Emory University Campus",contact:"Sarah Chen",value:22000,status:"hot",notes:"Looking to replace current vendor"},
-    {id:3,name:"Atlanta Marriott Marquis",contact:"James Porter",value:18500,status:"cold",notes:"Early stage inquiry"},
-  ]);
-  const [form,setForm] = useState({name:"",contact:"",value:"",notes:""});
-  const [ai,setAi] = useState(""); const [loading,setLoading] = useState(false);
-  const sc = {hot:C.red,warm:"#f59e0b",cold:C.blue,closed:C.green};
-
-  const pitch = async l => {
-    setLoading(true); setAi("");
-    const txt = await askClaude(`Write a professional follow-up outreach message from Special Services Protection to ${l.contact} at ${l.name}. Context: ${l.notes}. Est. value: $${l.value}/yr. Under 100 words, focus on value and reliability.`);
-    setAi(txt); setLoading(false);
-  };
-  const add = () => {
-    if(!form.name) return;
-    setLeads(l=>[...l,{...form,id:Date.now(),status:"warm",value:parseFloat(form.value)||0}]);
-    setForm({name:"",contact:"",value:"",notes:""});
-  };
-
-  return (
-    <div style={{display:"flex",flexDirection:"column",gap:16}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
-        <h2 style={{margin:0,...gradText,fontSize:20}}>Leads Agent</h2>
-        <Card style={{padding:"8px 16px"}}><span style={{fontSize:12,color:C.muted}}>Pipeline: </span><span style={{fontWeight:800,color:C.green}}>${leads.filter(l=>l.status!=="closed").reduce((a,b)=>a+(b.value||0),0).toLocaleString()}</span></Card>
-      </div>
-      {ai&&<Card style={{border:`1px solid ${C.gold}44`,background:"#1a1400"}}><p style={{margin:0,fontSize:13,color:C.silverLight,lineHeight:1.6}}>{ai}</p></Card>}
-      {leads.map(l=>(
-        <Card key={l.id} style={{padding:"14px 16px"}}>
-          <div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
-            <div><span style={{fontWeight:700,color:C.text,fontSize:14}}>{l.name}</span><span style={{color:C.muted,fontSize:12,marginLeft:8}}>{l.contact}</span></div>
-            <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
-              <span style={{fontWeight:700,color:C.silverLight}}>${(l.value||0).toLocaleString()}/yr</span>
-              <Badge color={sc[l.status]}>{l.status}</Badge>
-              <Sel value={l.status} onChange={v=>setLeads(ls=>ls.map(x=>x.id===l.id?{...x,status:v}:x))}
-                options={["hot","warm","cold","closed"].map(s=>({value:s,label:s.charAt(0).toUpperCase()+s.slice(1)}))}
-                style={{fontSize:11,padding:"3px 8px"}}/>
-              <Btn variant="ghost" style={{fontSize:11,padding:"4px 10px"}} onClick={()=>pitch(l)} disabled={loading}>✦ Pitch</Btn>
-            </div>
-          </div>
-          {l.notes&&<p style={{margin:"8px 0 0",fontSize:12,color:C.muted}}>{l.notes}</p>}
-        </Card>
-      ))}
-      <Card>
-        <p style={{margin:"0 0 12px",fontWeight:700,color:C.silver,fontSize:14}}>Add Lead</p>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))",gap:8}}>
-          <Input value={form.name} onChange={v=>setForm(f=>({...f,name:v}))} placeholder="Business name"/>
-          <Input value={form.contact} onChange={v=>setForm(f=>({...f,contact:v}))} placeholder="Contact name"/>
-          <Input value={form.value} onChange={v=>setForm(f=>({...f,value:v}))} placeholder="Est. value ($)" type="number"/>
-          <Input value={form.notes} onChange={v=>setForm(f=>({...f,notes:v}))} placeholder="Referral / notes"/>
-          <Btn onClick={add}>+ Add Lead</Btn>
-        </div>
-      </Card>
-    </div>
-  );
-}
-
-// ── PAYROLL ──────────────────────────────────────────────────
-function PayrollModule() {
-  const [payroll,setPayroll] = useState([
-    {id:1,name:"Marcus Reid",role:"Senior Officer",hours:80,rate:22,status:"processed"},
-    {id:2,name:"Tasha Williams",role:"Officer",hours:76,rate:18,status:"processed"},
-    {id:3,name:"Devon Clark",role:"Officer",hours:72,rate:18,status:"pending"},
-    {id:4,name:"Janet Moore",role:"Supervisor",hours:80,rate:26,status:"pending"},
-    {id:5,name:"Ray Thompson",role:"Officer",hours:40,rate:18,status:"on-hold"},
-  ]);
-  const [ai,setAi] = useState(""); const [loading,setLoading] = useState(false);
-  const gross = e=>e.hours*e.rate;
-  const totalGross = payroll.reduce((a,b)=>a+gross(b),0);
-  const sc = {processed:C.green,pending:"#f59e0b","on-hold":C.red};
-
-  const summarize = async () => {
-    setLoading(true); setAi("");
-    const txt = await askClaude(`Summarize this payroll run for Special Services Protection Atlanta: ${payroll.map(e=>`${e.name}: ${e.hours}hrs @ $${e.rate}/hr = $${gross(e)}`).join("; ")}. Total gross: $${totalGross}. 3 sentences, flag any risks or OT concerns.`);
-    setAi(txt); setLoading(false);
-  };
-
-  return (
-    <div style={{display:"flex",flexDirection:"column",gap:16}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
-        <h2 style={{margin:0,...gradText,fontSize:20}}>Payroll — Paychex Integration</h2>
-        <Btn onClick={summarize} disabled={loading}>{loading?"Analyzing...":"✦ AI Summary"}</Btn>
-      </div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(130px,1fr))",gap:12}}>
-        {[["Total Gross",`$${totalGross.toLocaleString()}`,C.silver],["Officers",payroll.length,C.blue],["Pending",payroll.filter(p=>p.status==="pending").length,"#f59e0b"],["Processed",payroll.filter(p=>p.status==="processed").length,C.green]].map(([l,v,c])=>(
-          <Card key={l} style={{textAlign:"center"}}><p style={{margin:"0 0 4px",fontSize:11,color:C.muted}}>{l}</p><p style={{margin:0,fontSize:20,fontWeight:800,color:c}}>{v}</p></Card>
-        ))}
-      </div>
-      {ai&&<Card style={{border:`1px solid ${C.gold}44`,background:"#1a1400"}}><p style={{margin:0,fontSize:13,color:C.silverLight,lineHeight:1.6}}>{ai}</p></Card>}
-      {payroll.map(e=>(
-        <Card key={e.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8,padding:"12px 16px"}}>
-          <div><span style={{fontWeight:700,color:C.text,fontSize:14}}>{e.name}</span><span style={{color:C.muted,fontSize:12,marginLeft:8}}>{e.role}</span></div>
-          <div style={{display:"flex",gap:12,alignItems:"center",flexWrap:"wrap"}}>
-            <span style={{fontSize:12,color:C.silverDark}}>{e.hours}hrs @ ${e.rate}/hr</span>
-            <span style={{fontWeight:700,color:C.silverLight}}>${gross(e).toLocaleString()}</span>
-            <Badge color={sc[e.status]}>{e.status}</Badge>
-            {e.status==="pending"&&<Btn variant="success" style={{fontSize:11,padding:"4px 10px"}} onClick={()=>setPayroll(p=>p.map(x=>x.id===e.id?{...x,status:"processed"}:x))}>Approve</Btn>}
-          </div>
-        </Card>
-      ))}
-      <Card style={{border:`1px solid ${C.blue}33`,padding:16}}>
-        <p style={{margin:"0 0 8px",fontSize:13,color:C.blue,fontWeight:700}}>🔗 Paychex Sync</p>
-        <p style={{margin:"0 0 12px",fontSize:12,color:C.muted}}>Connect your Paychex account to auto-sync hours, rates, and run payroll directly.</p>
-        <Btn variant="ghost" onClick={()=>alert("Add your Paychex API credentials in Settings to enable sync.")}>Connect Paychex</Btn>
-      </Card>
-    </div>
-  );
-}
-
-// ── MAIN APP ─────────────────────────────────────────────────
-const MODULES = [
-  {id:"schedule",label:"Schedule",icon:"📅"},
-  {id:"roster",label:"Roster",icon:"👮"},
-  {id:"invoices",label:"Invoices",icon:"💼"},
-  {id:"linkedin",label:"LinkedIn",icon:"🔗"},
-  {id:"leads",label:"Leads",icon:"🎯"},
-  {id:"payroll",label:"Payroll",icon:"💰"},
-];
-
-function App() {
-  const [active,setActive] = useState("schedule");
-  const render = () => {
-    switch(active) {
-      case "schedule": return <ScheduleModule/>;
-      case "roster": return <RosterModule/>;
-      case "invoices": return <InvoiceModule/>;
-      case "linkedin": return <LinkedInModule/>;
-      case "leads": return <LeadsModule/>;
-      case "payroll": return <PayrollModule/>;
-      default: return null;
-    }
-  };
-  return (
-    <div style={{minHeight:"100vh",background:C.bg,color:C.text,fontFamily:"Inter,system-ui,sans-serif"}}>
-      <div style={{background:"#0d0d0d",borderBottom:`1px solid ${C.border}`,padding:"14px 24px",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12}}>
-        <div style={{display:"flex",alignItems:"center",gap:12}}>
-          <div style={{width:38,height:38,borderRadius:"50%",background:"linear-gradient(135deg,#444,#c0c0c0)",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:900,fontSize:18,color:"#0a0a0a",flexShrink:0}}>S</div>
-          <div>
-            <h1 style={{margin:0,fontSize:16,fontWeight:800,...gradText}}>Special Services Protection</h1>
-            <p style={{margin:0,fontSize:11,color:C.muted}}>Business Command Center · Atlanta, GA</p>
-          </div>
-        </div>
-        <div style={{display:"flex",gap:6,alignItems:"center"}}>
-          <Badge color={C.green}>● Live</Badge>
-          <span style={{fontSize:12,color:C.muted}}>{new Date().toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}</span>
-        </div>
-      </div>
-      <div style={{background:"#0d0d0d",borderBottom:`1px solid ${C.border}`,padding:"0 24px",display:"flex",gap:2,overflowX:"auto"}}>
-        {MODULES.map(m=>(
-          <button key={m.id} onClick={()=>setActive(m.id)}
-            style={{padding:"12px 16px",background:"none",border:"none",borderBottom:active===m.id?`2px solid ${C.silver}`:"2px solid transparent",color:active===m.id?C.silverLight:C.muted,fontSize:13,fontWeight:active===m.id?700:400,cursor:"pointer",whiteSpace:"nowrap",display:"flex",alignItems:"center",gap:6,transition:"color .15s"}}>
-            <span>{m.icon}</span>{m.label}
-          </button>
-        ))}
-      </div>
-      <div style={{padding:"24px",maxWidth:1100,margin:"0 auto"}}>
-        {render()}
-      </div>
-    </div>
-  );
-}
-
-ReactDOM.render(React.createElement(App), document.getElementById("root"));
-</script>
-</body>
-</html>
+ReactDOM.render(React.createElement(App),document.getElementById("root"));
+</script></body></html>
