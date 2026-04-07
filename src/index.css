@@ -1,0 +1,10 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #080810; font-family: Inter, system-ui, sans-serif; color: #f0f0fa; min-height: 100vh; }
+#root { display: flex; min-height: 100vh; }
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-thumb { background: #2a2a45; border-radius: 4px; }
+select option { background: #13131f; }
+input[type=time]::-webkit-calendar-picker-indicator, input[type=date]::-webkit-calendar-picker-indicator { filter: invert(.7); }
+::placeholder { color: #606080; opacity: .7; }
+.card-hover { transition: all .2s; }
+.card-hover:hover { border-color: #2a2a45 !important; transform: translateY(-1px); }
